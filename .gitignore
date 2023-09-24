@@ -1,0 +1,12 @@
+*.class
+*.log
+.bsp
+.idea
+target
+.bloop
+.metals
+metals.sbt
+.vscode
+*.dylib
+*.so
+*.jar
