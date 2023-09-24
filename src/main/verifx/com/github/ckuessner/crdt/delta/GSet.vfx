@@ -1,0 +1,20 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof1
+
+class GSet[T](entries: Set[T]) extends DeltaCRDT[GSet[T]] {
+    def merge(that: GSet[T]): GSet[T] = {
+        new GSet[T](
+            this.entries.union(that.entries)
+        )
+    }
+
+    def contains(entry: T): Boolean = {
+        this.entries.contains(entry)
+    }
+
+    def add(entry: T): GSet[T] = {
+        new GSet[T](new Set[T]().add(entry))
+    }
+}
+
+object GSet extends CvRDTProof1[GSet]
