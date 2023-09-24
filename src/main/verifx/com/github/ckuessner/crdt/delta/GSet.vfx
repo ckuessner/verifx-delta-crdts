@@ -17,4 +17,18 @@ class GSet[T](entries: Set[T]) extends DeltaCRDT[GSet[T]] {
     }
 }
 
-object GSet extends CvRDTProof1[GSet]
+object GSet extends CvRDTProof1[GSet] {
+    proof elemIsContainedAfterAdd[T] {
+        forall (x: GSet[T], elem: T) {
+            x.merge(x.add(elem)).contains(elem)
+        }
+    }
+
+    proof elemNeverRemoved[T] {
+        forall (x: GSet[T], y: GSet[T], z: GSet[T], elem: T) {
+            val delta = x.add(elem)
+            val merged = y.merge(delta)
+            merged.contains(elem) && merged.merge(z).contains(elem)
+        }
+    }
+}
