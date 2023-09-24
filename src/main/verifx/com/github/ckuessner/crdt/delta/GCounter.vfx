@@ -1,0 +1,42 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof1
+
+class GCounter[ID](localCount: Map[ID, Int]) extends DeltaCRDT[GCounter[ID]] {
+    def inc(replica: ID, amount: Int): GCounter[ID] = {
+        new GCounter(
+            new Map[ID, Int]().add(replica, this.localCount.getOrElse(replica, 0) + 1)
+        )
+    }
+
+    def merge(other: GCounter[ID]): GCounter[ID] = {
+        new GCounter[ID](
+            this.localCount.combine(
+                other.localCount,
+                (a: Int, b: Int) => if (a >= b) a else b
+            )
+        )
+    }
+
+    def value(allReplicas: Vector[ID]): Int = {
+        this.reduceMap(this.localCount, allReplicas, 0, 0, 0, (a: Int, b: Int) => a + b)
+    }
+
+    @recursive
+    private def reduceMap[KEY, VAL, RES](map: Map[KEY, VAL],
+                                 keyVector: Vector[KEY],
+                                 currentKeyIdx: Int,
+                                 acc: RES,
+                                 default: VAL,
+                                 op: (RES, VAL) => RES,
+                                 ): RES = {
+
+        if (currentKeyIdx == keyVector.size) {
+            acc
+        } else {
+            val newAcc = op(acc, map.getOrElse(keyVector.get(currentKeyIdx), default))
+            this.reduceMap(map, keyVector, currentKeyIdx + 1, newAcc, default, op)
+        }
+    }
+}
+
+object GCounter extends CvRDTProof1[GCounter]
