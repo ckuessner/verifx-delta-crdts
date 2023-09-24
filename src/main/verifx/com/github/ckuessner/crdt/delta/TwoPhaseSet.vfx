@@ -1,0 +1,39 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof1
+
+class TwoPhaseSet[T](added: Set[T], removed: Set[T]) extends DeltaCRDT[TwoPhaseSet[T]] {
+    def add(elem: T): TwoPhaseSet[T] = {
+        val empty = new Set[T]()
+
+        if (this.removed.contains(elem)) {
+            new TwoPhaseSet(empty, empty)
+        } else {
+            new TwoPhaseSet(empty.add(elem), empty)
+        }
+    }
+
+    def remove(elem: T): TwoPhaseSet[T] = {
+        new TwoPhaseSet(new Set[T](), new Set[T]().add(elem))
+    }
+
+    def contains(elem: T): Boolean = {
+        this.added.contains(elem) && !this.removed.contains(elem)
+    }
+
+    def merge(that: TwoPhaseSet[T]): TwoPhaseSet[T] = {
+        new TwoPhaseSet[T](
+            this.added.union(that.added),
+            this.removed.union(that.removed)
+        )
+    }
+}
+
+object TwoPhaseSet extends CvRDTProof1[TwoPhaseSet] {
+    proof removeIsPersistent[T] {
+        forall (x: TwoPhaseSet[T], y: TwoPhaseSet[T], z: TwoPhaseSet[T], elem: T) {
+            val delta = x.remove(elem)
+            // Regardless of states y and z, elem will never be contained again after merge of removal delta
+            !y.merge(delta).merge(z).contains(elem)
+        }
+    }
+}
