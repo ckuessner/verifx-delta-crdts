@@ -1,0 +1,29 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof1
+import com.github.ckuessner.crdt.delta.Dot
+
+// Assumes that dot uniquely identifies a
+class LWW[T](value: T, dot: Dot) extends DeltaCRDT[LWW[T]] {
+    def merge(that: LWW[T]): LWW[T] = {
+        if (this.dot.time > that.dot.time) {
+            this
+        } else if (this.dot.time < that.dot.time) {
+            that
+        } else if (this.dot.replica > that.dot.replica) {
+            this
+        } else {
+            that
+        }
+    }
+
+    override def compare(that: LWW[T]): Boolean  = {
+        this.dot.time < that.dot.time || this.dot.time == that.dot.time && this.dot.replica < that.dot.replica
+    }
+
+    // We assume that a dot uniquely identifies a value
+    override def compatible(that: LWW[T]): Boolean = {
+        this.dot != that.dot || this.value == that.value
+    }
+}
+
+object LWW extends CvRDTProof1[LWW]
