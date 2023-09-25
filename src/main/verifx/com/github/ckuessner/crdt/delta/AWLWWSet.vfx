@@ -1,0 +1,31 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof1
+
+class AWLWWSet[T](entryMap: Map[T, Tuple[Int, Boolean]]) extends DeltaCRDT[AWLWWSet[T]] {
+    def add(element: T, timestamp: Int): AWLWWSet[T] = new AWLWWSet[T](
+        new Map[T, Tuple[Int, Boolean]]().add(element, new Tuple(timestamp, true))
+    )
+
+    def remove(element: T, timestamp: Int): AWLWWSet[T] = new AWLWWSet[T](
+        new Map[T, Tuple[Int, Boolean]]().add(element, new Tuple(timestamp, false))
+    )
+
+    def elements(): Set[T] = {
+        this.entryMap
+            .filter((element: T, tpl: Tuple[Int, Boolean]) => tpl.snd) // tpl.snd indicates whether the elem is in set
+            .keys()
+    }
+
+    def merge(that: AWLWWSet[T]): AWLWWSet[T] = new AWLWWSet[T](
+        this.entryMap.combine(
+            that.entryMap,
+            (left: Tuple[Int, Boolean], right: Tuple[Int, Boolean]) => {
+                if (left.fst < right.fst) right
+                else if (left.fst > right.fst) left
+                else new Tuple(left.fst, left.snd && right.snd)
+            }
+        )
+    )
+}
+
+object AWLWWSet extends CvRDTProof1[AWLWWSet]
