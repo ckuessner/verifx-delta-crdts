@@ -20,7 +20,11 @@ class TwoPhaseSet[T](added: Set[T], removed: Set[T]) extends DeltaCRDT[TwoPhaseS
         this.added.contains(elem) && !this.removed.contains(elem)
     }
 
-    def merge(that: TwoPhaseSet[T]): TwoPhaseSet[T] = {
+    def elements: Set[T] = {
+        this.added.diff(this.removed)
+    }
+
+    override def merge(that: TwoPhaseSet[T]): TwoPhaseSet[T] = {
         new TwoPhaseSet[T](
             this.added.union(that.added),
             this.removed.union(that.removed)
@@ -32,8 +36,9 @@ object TwoPhaseSet extends CvRDTProof1[TwoPhaseSet] {
     proof removeIsPersistent[T] {
         forall (x: TwoPhaseSet[T], y: TwoPhaseSet[T], z: TwoPhaseSet[T], elem: T) {
             val delta = x.remove(elem)
+            val merged = y.merge(delta).merge(z)
             // Regardless of states y and z, elem will never be contained again after merge of removal delta
-            !y.merge(delta).merge(z).contains(elem)
+            !merged.contains(elem) && !merged.elements().contains(elem)
         }
     }
 }
