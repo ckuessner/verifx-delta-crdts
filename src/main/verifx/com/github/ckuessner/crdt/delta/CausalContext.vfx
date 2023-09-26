@@ -1,0 +1,11 @@
+import com.github.ckuessner.crdt.delta.Dot
+
+class CausalContext(vv: Map[Int, Int]) {
+    def next(replica: Int): Dot = {
+        new Dot(replica, this.vv.getOrElse(replica, 0) + 1)
+    }
+
+    def max(replica: Int): Int = {
+        this.vv.getOrElse(replica, 0)
+    }
+}

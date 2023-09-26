@@ -1,0 +1,39 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof1
+import com.github.ckuessner.crdt.delta.Dot
+import com.github.ckuessner.crdt.delta.DotFun
+
+class MVReg[V](m: Map[Dot, V], cc: Set[Dot]) extends DeltaCRDT[MVReg[V]] {
+    def write(v: V, dot: Dot): MVReg[V] = {
+        new MVReg[V](
+            new Map[Dot, V]().add(dot, v),
+            this.m.keys().add(dot)
+        )
+    }
+
+    def clear: MVReg[V] = {
+        new MVReg[V](
+            new Map[Dot, V](),
+            this.m.keys()
+        )
+    }
+
+    def elements: Set[V] = {
+        this.m.values()
+    }
+
+    def merge(that: MVReg[V]): MVReg[V] = {
+        val vMergeFun = (a: V, b: V) => a  /*assumption: a == b*/
+        val merged = new DotFun[V](this.m, this.cc, vMergeFun).merge(new DotFun[V](that.m, that.cc, vMergeFun))
+        new MVReg[V](merged.s, merged.cc)
+    }
+
+    override def compatible(that: MVReg[V]): Boolean = {
+        // Ensures uniqueness of dot -> val mapping
+        this.m.keys().intersect(that.m.keys()).forall((dot: Dot) =>
+            this.m.get(dot) == that.m.get(dot)
+        )
+    }
+}
+
+object MVReg extends CvRDTProof1[MVReg]

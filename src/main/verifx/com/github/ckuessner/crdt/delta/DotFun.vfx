@@ -1,0 +1,50 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof1
+import com.github.ckuessner.crdt.delta.Dot
+
+class DotFun[V](s: Map[Dot, V], cc: Set[Dot], vMergeFun: (V, V) => V) extends DeltaCRDT[DotFun[V]] {
+    def dots: Set[Dot] = {
+        this.s.keys()
+    }
+
+    def merge(that: DotFun[V]): DotFun[V] = {
+        val dotsInBoth = this.s.keys().intersect(that.s.keys())
+        val mergedIntersection =
+            this.s.filter((dot: Dot, _: V) => dotsInBoth.contains(dot))
+                .combine(that.s.filter((dot: Dot, _: V) => dotsInBoth.contains(dot)),
+                         (v1: V, v2: V) => this.vMergeFun(v1, v2)
+                )
+        val notInThatCc = this.s.filter((dot: Dot, _: V) => !that.cc.contains(dot))
+        val notInThisCc = that.s.filter((dot: Dot, _: V) => !this.cc.contains(dot))
+
+        new DotFun[V](
+            mergedIntersection
+                .combine(notInThatCc, this.vMergeFun)
+                .combine(notInThisCc, this.vMergeFun),
+            this.cc.union(that.cc),
+            this.vMergeFun
+        )
+    }
+
+    /*
+    def compatible(that: DotFun[V]): Boolean = {
+        val dotsInBoth = this.s.keys().intersect(that.s.keys())
+        val notInThatCc = this.s.keys().diff(that.cc)
+        val notInThisCc = that.s.keys().diff(this.cc)
+
+        val m: (V, V) => V = this.vMergeFun
+
+        this.vMergeFun == that.vMergeFun &&
+            forall (x: V, y: V, z: V) { // vMergeFun forms a lattice
+                m(m(x, y), z).equals(m(x, m(y, z))) && // associative
+                m(x, y).equals(m(y, x)) && // commutative
+                m(x, x).equals(x) // idempotent
+            } &&
+            dotsInBoth.intersect(notInThatCc).isEmpty() &&
+            dotsInBoth.intersect(notInThisCc).isEmpty() &&
+            notInThisCc.intersect(notInThatCc).isEmpty()
+    }
+    */
+}
+
+//object DotFun extends CvRDTProof1[DotFun]
