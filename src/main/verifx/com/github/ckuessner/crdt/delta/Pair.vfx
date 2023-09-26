@@ -1,0 +1,14 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof
+
+// Pair[A, B] should be generic but restricted to A, B <: CvRDT
+class Pair[A, B](_1: A, _2: B, merge1: (A, A) => A, merge2: (B,B) => B) extends DeltaCRDT[Pair[A, B]] {
+    def merge(that: Pair[A, B]): Pair[A, B] = {
+        new Pair[A, B](
+            this.merge1(this._1, that._1),
+            this.merge2(this._2, that._2),
+            this.merge1,
+            this.merge2
+        )
+    }
+}

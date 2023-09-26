@@ -1,0 +1,37 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof2
+import com.github.ckuessner.crdt.delta.Lattice
+
+/*
+
+// Pair[A, B] should be generic but restricted to A, B <: CvRDT
+// Could move lattice1 and lattice2 to abstract methods (probably means that we need to convert this to a trait
+trait LexPair[A, B] extends DeltaCRDT[LexPair[A, B]] {
+    def a: A
+
+    def b: B
+
+    def lattice1: Lattice[A]
+
+    def lattice2: Lattice[B]
+
+    def merge(that: LexPair[A, B]): LexPair[A, B] = {
+        if (!this.lattice1().compare(this.a(), that.a())) { // a > a'
+            this
+        } else if (!this.lattice1().compare(that.a(), this.a())) { // a' > a
+            that
+        } else if (!this.lattice1().areEqual(this.a(), that.a())) { // a == a'
+            new LexPair[A, B](
+                this.a(),
+                lattice2.merge(this.b(), that.b()) // b ⊔ b'
+            )
+        } else {
+            new LexPair[A, B](
+                lattice1.merge(this.a(), that.a()), // a ⊔ a'
+                lattice2.bottom()
+            )
+        }
+    }
+}
+
+*/

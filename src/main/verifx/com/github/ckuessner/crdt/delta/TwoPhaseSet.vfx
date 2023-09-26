@@ -24,7 +24,7 @@ class TwoPhaseSet[T](added: Set[T], removed: Set[T]) extends DeltaCRDT[TwoPhaseS
         this.added.diff(this.removed)
     }
 
-    override def merge(that: TwoPhaseSet[T]): TwoPhaseSet[T] = {
+    def merge(that: TwoPhaseSet[T]): TwoPhaseSet[T] = {
         new TwoPhaseSet[T](
             this.added.union(that.added),
             this.removed.union(that.removed)
@@ -32,6 +32,7 @@ class TwoPhaseSet[T](added: Set[T], removed: Set[T]) extends DeltaCRDT[TwoPhaseS
     }
 }
 
+/*
 object TwoPhaseSet extends CvRDTProof1[TwoPhaseSet] {
     proof removeIsPersistent[T] {
         forall (x: TwoPhaseSet[T], y: TwoPhaseSet[T], z: TwoPhaseSet[T], elem: T) {
@@ -42,3 +43,4 @@ object TwoPhaseSet extends CvRDTProof1[TwoPhaseSet] {
         }
     }
 }
+*/

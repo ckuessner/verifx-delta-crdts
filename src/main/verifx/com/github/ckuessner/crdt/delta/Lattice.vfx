@@ -1,0 +1,6 @@
+trait Lattice[T] {
+    def merge(left: T, right: T): T
+    def compare(left: T, right: T): T
+    def areEqual(left: T, right: T): T
+    def bottom: T
+}
