@@ -1,0 +1,24 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof
+import com.github.ckuessner.crdt.delta.DotSet
+
+class EWFlag(store: Set[Dot], cc: Set[Dot]) extends DeltaCRDT[EWFlag] {
+    def read: Boolean = this.store.nonEmpty()
+
+    def enable(dot: Dot): EWFlag = {
+        new EWFlag(new Set[Dot]().add(dot), this.store.add(dot))
+    }
+
+    def disable(): EWFlag = {
+        new EWFlag(new Set[Dot](), this.store)
+    }
+
+    def merge(that: EWFlag): EWFlag = {
+        val left = new DotSet(this.store, this.cc)
+        val right = new DotSet(that.store, that.cc)
+        val merged = left.merge(right)
+        new EWFlag(merged.s, merged.c)
+    }
+}
+
+object EWFlag extends CvRDTProof[EWFlag]

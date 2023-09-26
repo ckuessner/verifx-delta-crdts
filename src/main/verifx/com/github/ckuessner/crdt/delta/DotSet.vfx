@@ -1,0 +1,12 @@
+import org.verifx.crdtproofs.lemmas.DeltaCRDT
+import org.verifx.crdtproofs.lemmas.CvRDTProof
+import com.github.ckuessner.crdt.delta.Dot
+
+class DotSet(s: Set[Dot], c: Set[Dot]) extends DeltaCRDT[DotSet] {
+    def merge(that: DotSet): DotSet = new DotSet(
+        this.s.intersect(that.s).union(this.s.diff(that.c)).union(that.s.diff(this.c)),
+        this.c.union(that.c)
+    )
+}
+
+//object DotSet extends CvRDTProof[DotSet]
