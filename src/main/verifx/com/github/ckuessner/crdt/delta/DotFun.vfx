@@ -10,12 +10,12 @@ class DotFun[V](s: Map[Dot, V], cc: Set[Dot], vMergeFun: (V, V) => V) extends De
     def merge(that: DotFun[V]): DotFun[V] = {
         val dotsInBoth = this.s.keys().intersect(that.s.keys())
         val mergedIntersection =
-            this.s.filter((dot: Dot, _: V) => dotsInBoth.contains(dot))
-                .combine(that.s.filter((dot: Dot, _: V) => dotsInBoth.contains(dot)),
+            this.s.filter((dot: Dot, ignored: V) => dotsInBoth.contains(dot))
+                .combine(that.s.filter((dot: Dot, ignored: V) => dotsInBoth.contains(dot)),
                          (v1: V, v2: V) => this.vMergeFun(v1, v2)
                 )
-        val notInThatCc = this.s.filter((dot: Dot, _: V) => !that.cc.contains(dot))
-        val notInThisCc = that.s.filter((dot: Dot, _: V) => !this.cc.contains(dot))
+        val notInThatCc = this.s.filter((dot: Dot, ignored: V) => !that.cc.contains(dot))
+        val notInThisCc = that.s.filter((dot: Dot, ignored: V) => !this.cc.contains(dot))
 
         new DotFun[V](
             mergedIntersection
@@ -47,4 +47,4 @@ class DotFun[V](s: Map[Dot, V], cc: Set[Dot], vMergeFun: (V, V) => V) extends De
     */
 }
 
-//object DotFun extends CvRDTProof1[DotFun]
+object DotFun extends CvRDTProof1[DotFun]
